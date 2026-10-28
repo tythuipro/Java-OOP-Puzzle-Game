@@ -232,6 +232,25 @@ public class UI {
         g2.setColor(Color.WHITE);
         g2.drawString("Level " + levelNumber, 38, 27);
 
+        // --- Hiển thị Đồng xu (Coin) & Điểm số (Score) ---
+        int coinX = 125;
+        // Icon đồng xu vàng nhỏ
+        g2.setColor(COLOR_GOLD);
+        g2.fillOval(coinX, 12, 16, 16);
+        g2.setColor(COLOR_GOLD_DARK);
+        g2.setStroke(new BasicStroke(1.2f));
+        g2.drawOval(coinX, 12, 16, 16);
+        g2.setColor(new Color(110, 70, 0));
+        g2.setFont(new Font("SansSerif", Font.BOLD, 11));
+        g2.drawString("C", coinX + 4, 24);
+
+        // Chữ SCORE
+        g2.setFont(smallFont);
+        g2.setColor(COLOR_GOLD);
+        g2.drawString("SCORE:", coinX + 22, 27);
+        g2.setColor(Color.WHITE);
+        g2.drawString(Integer.toString(gp.getScore()), coinX + 88, 27);
+
         // --- Giữa: Tên game ---
         g2.setFont(tinyFont);
         g2.setColor(new Color(150, 150, 180));
@@ -319,8 +338,8 @@ public class UI {
         drawStars(g2, sw, sh);
 
         // --- Panel chính ---
-        int panelW = 420;
-        int panelH = 260;
+        int panelW = 440;
+        int panelH = 290;
         int panelX = (sw - panelW) / 2;
         int panelY = (sh - panelH) / 2;
 
@@ -366,12 +385,20 @@ public class UI {
         g2.setColor(new Color(255, 240, 200));
         String congrats = "Congratulations!";
         int congratsX = getXForCenteredText(congrats, g2);
-        g2.drawString(congrats, congratsX, titleY + 40);
+        g2.drawString(congrats, congratsX, titleY + 36);
+
+        // --- Điểm số chung cuộc (Final Score) ---
+        g2.setFont(normalFont);
+        int finalScore = gp.getScore();
+        String scoreMsg = "\u2605  TOTAL SCORE: " + finalScore + "  \u2605";
+        int scoreX = getXForCenteredText(scoreMsg, g2);
+        g2.setColor(new Color(255, 220, 80));
+        g2.drawString(scoreMsg, scoreX, titleY + 68);
 
         // --- Đường kẻ trang trí ---
         g2.setColor(new Color(255, 215, 0, 100));
         g2.setStroke(new BasicStroke(1.5f));
-        int lineY2 = titleY + 55;
+        int lineY2 = titleY + 82;
         g2.drawLine(panelX + 40, lineY2, panelX + panelW - 40, lineY2);
 
         // --- Nút tiếp tục (nhấp nháy) ---

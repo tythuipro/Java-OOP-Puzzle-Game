@@ -13,6 +13,8 @@ public class GameManager {
     private final LevelManager levelManager = new LevelManager();
     private final List<GameListener> listeners = new ArrayList<>();
     private GameState state = GameState.MENU;
+    private int score = 0;
+    private int levelStartScore = 0; // Lưu mốc điểm tích lũy an toàn khi bước vào màn chơi hiện tại
 
     private GameManager() {}
 
@@ -32,8 +34,16 @@ public class GameManager {
     public Level getCurrentLevel() { return levelManager.getCurrentLevel(); }
     public LevelManager getLevelManager() { return levelManager; }
 
+    public int getScore() { return score; }
+    public void addScore(int points) { this.score += points; }
+    public void resetScore() { 
+        this.score = 0; 
+        this.levelStartScore = 0;
+    }
+
     // Start Game: về Level 1 và bắt đầu chơi
     public void startGame() {
+        resetScore();
         levelManager.loadFirstLevel();
         setState(GameState.PLAYING);
         notifyLevelLoaded();
@@ -52,8 +62,14 @@ public class GameManager {
         else if (state == GameState.PAUSED) resumeGame();
     }
 
+    /**
+     * Khởi động lại màn chơi hiện tại (phím R):
+     * Hoàn tác điểm số về mốc ban đầu của màn chơi này (levelStartScore),
+     * bảo lưu toàn bộ điểm số người chơi đã tích lũy từ các màn trước đó.
+     */
     public void restartLevel() {
         if (state != GameState.PLAYING && state != GameState.PAUSED) return;
+        score = levelStartScore;
         levelManager.restartLevel();
         setState(GameState.PLAYING);
         notifyLevelLoaded();
@@ -67,6 +83,7 @@ public class GameManager {
     }
 
     public void nextLevel() {
+        levelStartScore = score; // Lưu mốc điểm tích lũy của các màn đã hoàn thành
         Level next = levelManager.nextLevel();
         if (next == null) {
             winGame();
@@ -80,7 +97,10 @@ public class GameManager {
         for (GameListener l : new ArrayList<>(listeners)) l.onGameWon();
     }
 
-    public void backToMenu() { setState(GameState.MENU); }
+    public void backToMenu() { 
+        resetScore();
+        setState(GameState.MENU); 
+    }
 
     private void setState(GameState newState) {
         if (state == newState) return;

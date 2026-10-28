@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Lớp trừu tượng cơ sở cho tất cả các đối tượng tương tác trong game
- * (Box, Key, Door, Switch...)
+ * (Box, Coin, Door, Switch...)
  * Đảm nhiệm quản lý tọa độ (x, y) và hình ảnh (image).
  */
 public abstract class GameObject {

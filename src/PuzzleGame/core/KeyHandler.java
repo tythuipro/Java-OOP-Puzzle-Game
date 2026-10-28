@@ -5,6 +5,10 @@ import PuzzleGame.player.Direction;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+/**
+ * Lớp KeyHandler xử lý các sự kiện bàn phím từ người chơi.
+ * (Tên gọi KeyHandler bắt nguồn từ java.awt.event.KeyListener trong thư viện Java Swing).
+ */
 public class KeyHandler implements KeyListener {
     private GamePanel gp;
 
@@ -73,10 +77,11 @@ public class KeyHandler implements KeyListener {
                 gp.teleManager.checkTeleport(gp.testPlayer);
             }
 
-            // Kiểm tra nhặt chìa khóa
-            if (gp.testKey != null && !gp.testKey.isCollected()) {
-                if (gp.testPlayer.getX() == gp.testKey.getX() && gp.testPlayer.getY() == gp.testKey.getY()) {
-                    gp.testKey.collect();
+            // Kiểm tra thu thập Coin và tăng điểm số (Score)
+            if (gp.testCoin != null && !gp.testCoin.isCollected()) {
+                if (gp.testPlayer.getX() == gp.testCoin.getX() && gp.testPlayer.getY() == gp.testCoin.getY()) {
+                    gp.testCoin.collect();
+                    GameManager.getInstance().addScore(gp.testCoin.getValue());
                 }
             }
 

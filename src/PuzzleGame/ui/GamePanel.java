@@ -3,40 +3,41 @@ package PuzzleGame.ui;
 import PuzzleGame.map.Map;
 import PuzzleGame.player.Player;
 import PuzzleGame.objects.Box;
-import PuzzleGame.objects.Switch;
 import PuzzleGame.objects.Door;
-import PuzzleGame.objects.Key;
+import PuzzleGame.objects.Switch;
+import PuzzleGame.objects.Coin;
 import PuzzleGame.teleport.Teleporter;
 import PuzzleGame.teleport.TeleportManager;
 import PuzzleGame.core.KeyHandler;
-import PuzzleGame.core.GameListener;
 import PuzzleGame.core.GameManager;
 import PuzzleGame.core.GameState;
+import PuzzleGame.core.GameListener;
 import PuzzleGame.level.Level;
 
-import java.util.List;
-import java.awt.Point;
-
-import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable, GameListener {
-    final int originalTileSize = 16; 
-    final int scale = 4; 
-    public final int tileSize = originalTileSize * scale; // 64x64 pixel
 
+    // CÀI ĐẶT MÀN HÌNH (12 Cột x 9 Hàng, 64x64 pixel mỗi ô)
+    final int originalTileSize = 16; 
+    final int scale = 4;
+    public final int tileSize = originalTileSize * scale; // 64x64
+    
     public final int maxScreenCol = 12;
     public final int maxScreenRow = 9;
-    public final int screenWidth = tileSize * maxScreenCol;
-    public final int screenHeight = tileSize * maxScreenRow;
+    public final int screenWidth = tileSize * maxScreenCol;  // 768 px
+    public final int screenHeight = tileSize * maxScreenRow; // 576 px
 
     public Map map;
     public UI ui = new UI(this); 
@@ -45,14 +46,14 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
     int fps = 60;
 
     public BufferedImage imagePlayer, imageBox, imageSwitch;
-    public BufferedImage imageKey, imageDoor, imageTeleport, imageTeleport2;
+    public BufferedImage imageCoin, imageDoor, imageTeleport, imageTeleport2;
     public BufferedImage imagePlayerUp, imagePlayerDown, imagePlayerLeft, imagePlayerRight;
     
     // TẠO OBJECT ĐỂ TEST VẼ
     public Player testPlayer;
     public Box testBox;
     public Switch testSwitch;
-    public Key testKey;
+    public Coin testCoin;
     public Door testDoor;
     public TeleportManager teleManager = new TeleportManager();
 
@@ -92,7 +93,12 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
 
             imageBox = ImageIO.read(new File("assets/images/puzzle objects/box.png"));
             imageSwitch = ImageIO.read(new File("assets/images/puzzle objects/switch.png"));
-            imageKey = ImageIO.read(new File("assets/images/puzzle objects/key.png"));
+            
+            File coinFile = new File("assets/images/puzzle objects/coin.png");
+            if (coinFile.exists()) {
+                imageCoin = ImageIO.read(coinFile);
+            }
+
             imageDoor = ImageIO.read(new File("assets/images/puzzle objects/door closed.png"));
             imageTeleport = ImageIO.read(new File("assets/images/teleporter/teleporter_1.png"));
             imageTeleport2 = ImageIO.read(new File("assets/images/teleporter/teleporter_2.png"));
@@ -133,7 +139,7 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
     }
 
     /**
-     * Khởi động lại màn chơi hiện tại (reset vị trí người chơi, hộp, công tắc, chìa khóa, cửa và teleport).
+     * Khởi động lại màn chơi hiện tại (reset vị trí người chơi, hộp, công tắc, coin, cửa và teleport).
      */
     public void resetGame() {
         GameManager manager = GameManager.getInstance();
@@ -147,6 +153,10 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
     public int getCurrentLevelNumber() {
         Level level = GameManager.getInstance().getCurrentLevel();
         return level == null ? 0 : level.getNumber();
+    }
+
+    public int getScore() {
+        return GameManager.getInstance().getScore();
     }
 
     @Override
@@ -178,8 +188,10 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
         testPlayer = start == null ? null : new Player(start.x, start.y);
         Point box = firstPosition(level.getBoxes());
         testBox = box == null ? null : new Box(box.x, box.y);
-        Point key = firstPosition(level.getKeys());
-        testKey = key == null ? null : new Key(key.x, key.y);
+        
+        Point coinPos = firstPosition(level.getCoins());
+        testCoin = coinPos == null ? null : new Coin(coinPos.x, coinPos.y);
+        
         Point door = firstPosition(level.getDoors());
         testDoor = door == null ? null : new Door(door.x, door.y);
         Point floorSwitch = firstPosition(level.getSwitches());
@@ -224,11 +236,11 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
                 g2.drawImage(swImg, testSwitch.getX() * tileSize, testSwitch.getY() * tileSize, tileSize, tileSize, null);
             }
 
-            // Vẽ Key (nếu chưa được nhặt)
-            if (testKey != null && !testKey.isCollected()) {
-                BufferedImage kImg = testKey.getImage() != null ? testKey.getImage() : imageKey;
-                if (kImg != null) {
-                    g2.drawImage(kImg, testKey.getX() * tileSize, testKey.getY() * tileSize, tileSize, tileSize, null);
+            // Vẽ Coin (nếu chưa được nhặt)
+            if (testCoin != null && !testCoin.isCollected()) {
+                BufferedImage cImg = testCoin.getImage() != null ? testCoin.getImage() : imageCoin;
+                if (cImg != null) {
+                    g2.drawImage(cImg, testCoin.getX() * tileSize, testCoin.getY() * tileSize, tileSize, tileSize, null);
                 }
             }
 
@@ -268,7 +280,7 @@ public class GamePanel extends JPanel implements Runnable, GameListener {
                     case RIGHT: if (imagePlayerRight != null) currentPlayerImg = imagePlayerRight; break;
                 }
             }
-            if (currentPlayerImg != null) {
+            if (currentPlayerImg != null && testPlayer != null) {
                 g2.drawImage(currentPlayerImg, testPlayer.getX() * tileSize, testPlayer.getY() * tileSize, tileSize, tileSize, null);
             }
 

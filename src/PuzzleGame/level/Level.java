@@ -6,7 +6,7 @@ import java.util.List;
 
 /*
  * Ký tự map: '#' tường, '.' ô trống, 'P' Player, 'B' Box,
- * 'K' Key, 'D' Door, 'S' Switch, 'T' Teleporter
+ * 'C' Coin, 'D' Door, 'S' Switch, 'T' Teleporter
  */
 public class Level {
 
@@ -14,7 +14,7 @@ public class Level {
     public static final char EMPTY = '.';
     public static final char PLAYER = 'P';
     public static final char BOX = 'B';
-    public static final char KEY = 'K';
+    public static final char COIN = 'C';
     public static final char DOOR = 'D';
     public static final char SWITCH = 'S';
     public static final char TELEPORTER = 'T';
@@ -70,7 +70,7 @@ public class Level {
     }
 
     public List<Point> getBoxes()       { return findAll(BOX); }
-    public List<Point> getKeys()        { return findAll(KEY); }
+    public List<Point> getCoins()       { return findAll(COIN); }
     public List<Point> getDoors()       { return findAll(DOOR); }
     public List<Point> getSwitches()    { return findAll(SWITCH); }
     public List<Point> getTeleporters() { return findAll(TELEPORTER); }
